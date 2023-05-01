@@ -1,6 +1,9 @@
 # purescript-virtual-dom-halogen
+
 React Basic implementation of the general `Html` class from the
-[virtual-dom](https://github.com/thought2/purescript-virtual-dom) package. You can write your web views in a framework agnostic way and this package can convert them to Halogen views. 
+[virtual-dom](https://github.com/thought2/purescript-virtual-dom) package.
+You can write your web views in a framework agnostic way and this package can
+convert them to Halogen views.
 
 ## Example
 ```hs
@@ -8,16 +11,18 @@ module Test.SampleReadme where
 
 import Prelude
 
-import Data.Tuple.Nested ((/\))
 import Effect (Effect)
-import React.Basic.DOM.Client as ReactBasicDOM
-import React.Basic.Hooks as React
+import Effect.Aff (launchAff_)
+import Halogen (liftEffect)
+import Halogen as H
+import Halogen as Halogen
+import Halogen.VDom.Driver as HalogenVDOM
 import VirtualDOM (class Html, text)
-import VirtualDOM.HTML.Attributes as TA
-import VirtualDOM.HTML.Elements as T
-import VirtualDOM.HTML.Events as TE
-import VirtualDOM.Impl.ReactBasic as VirtualDOM.React
-import Web.DOM as DOM
+import VirtualDOM.HTML.Attributes as VA
+import VirtualDOM.HTML.Elements as V
+import VirtualDOM.HTML.Events as VE
+import VirtualDOM.Impl.Halogen as VirtualDom.Halogen
+import Web.HTML (HTMLElement)
 ```
 ### Framework agnostic view
 ```hs
@@ -34,40 +39,41 @@ counterUpdate msg state = case msg of
 
 counterView :: forall html ctx. Html html => { count :: Int } -> html ctx Msg
 counterView props =
-  T.div
-    [ TA.style "border: 1px solid red"
+  V.div
+    [ VA.style "border: 1px solid red"
     ]
     [ text "Counter"
-    , T.div [] [ text $ show props.count ]
-    , T.button [ TE.onClick (Increment 1) ]
+    , V.div [] [ text $ show props.count ]
+    , V.button [ VE.onClick (Increment 1) ]
         [ text "+" ]
-    , T.button [ TE.onClick (Decrement 1) ]
+    , V.button [ VE.onClick (Decrement 1) ]
         [ text "-" ]
     ]
 ```
-### React Basic Hook component
+### Halogen component
 ```hs
-mkApp :: React.Component {}
-mkApp = do
-  React.component "Counter" \_props -> React.do
+app :: forall q i o m. Halogen.Component q i o m
+app =
+  H.mkComponent
+    { initialState
+    , render
+    , eval: H.mkEval $ H.defaultEval { handleAction = handleAction }
+    }
+  where
+  initialState _ = 0
 
-    state /\ setState <- React.useState 0
+  render state =
+    VirtualDom.Halogen.runHalogenHTML unit $ counterView { count: state }
 
-    let
-      handler msg = setState $ counterUpdate msg
-
-    pure
-      $ VirtualDOM.React.runReactHTML unit handler
-      $ counterView { count: state }
+  handleAction msg = H.modify_ $ counterUpdate msg
 ```
-### Main
+### Mount Halogen component
 ```hs
-foreign import elemById :: String -> Effect DOM.Element
+foreign import elemById :: String -> Effect HTMLElement
 
 main :: Effect Unit
-main = do
-  rootElem <- elemById "root"
-  app <- mkApp
-  reactRoot <- ReactBasicDOM.createRoot rootElem
-  ReactBasicDOM.renderRoot reactRoot (app {})
+main = launchAff_ do
+  rootElem <- liftEffect $ elemById "root"
+  _ <- HalogenVDOM.runUI app unit rootElem
+  pure unit
 ```
