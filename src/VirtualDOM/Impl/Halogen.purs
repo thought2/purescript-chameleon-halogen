@@ -1,8 +1,9 @@
 module VirtualDOM.Impl.Halogen
-  ( HalogenHTML
-  , runHalogenHTML
-  )
-  where
+  ( HalogenHtml
+  , HalogenHtmlCtx(..)
+  , runHalogenHtml
+  , runHalogenHtmlCtx
+  ) where
 
 import Prelude
 
@@ -14,31 +15,35 @@ import Halogen.HTML (HTML)
 import Halogen.HTML as HH
 import Halogen.HTML.Properties (IProp(..))
 import Halogen.Query.Input (Input(..))
-import VirtualDOM (class Html, ElemName(..), Key(..), Prop(..))
+import Safe.Coerce (coerce)
 import Unsafe.Coerce (unsafeCoerce)
+import VirtualDOM (class Ctx, class Html, ElemName(..), Key(..), Prop(..))
+import VirtualDOM as V
 import Web.Event.Event (EventType(..))
 import Web.Event.Internal.Types as DOM
 
-newtype HalogenHTML ctx a = HalogenHTML (ctx -> HTML Void a)
+--------------------------------------------------------------------------------
+-- HalogenHtml
+--------------------------------------------------------------------------------
 
-derive instance Functor (HalogenHTML ctx)
+newtype HalogenHtml a = HalogenHtml (HTML Void a)
 
-instance Html (HalogenHTML ctx) ctx where
-  elem (ElemName name) props children = HalogenHTML \ctx ->
+derive instance Functor HalogenHtml
+
+instance Html HalogenHtml where
+  elem (ElemName name) props children = HalogenHtml $
     HH.element
       (HH.ElemName name)
       (mapProp <$> props)
-      (runHalogenHTML ctx <$> children)
+      (coerce children)
 
-  elemKeyed (ElemName name) props children = HalogenHTML \ctx ->
+  elemKeyed (ElemName name) props children = HalogenHtml $
     HH.keyed
       (HH.ElemName name)
       (mapProp <$> props)
-      ((\(Key key /\ html) -> key /\ runHalogenHTML ctx html) <$> children)
+      ((\(Key key /\ html) -> key /\ runHalogenHtml html) <$> children)
 
-  text str = HalogenHTML \_ -> HH.text str
-
-  withCtx f = HalogenHTML \ctx -> runHalogenHTML ctx $ f ctx
+  text str = HalogenHtml $ HH.text str
 
 mapProp :: forall r a. Prop a -> IProp r a
 mapProp prop = case prop of
@@ -48,6 +53,28 @@ mapProp prop = case prop of
 eventToForeign :: DOM.Event -> Foreign
 eventToForeign = unsafeCoerce
 
-runHalogenHTML :: forall ctx b a. ctx -> HalogenHTML ctx a -> (HTML b a)
-runHalogenHTML ctx (HalogenHTML f) = lmap absurd $ f ctx
+runHalogenHtml :: forall b a. HalogenHtml a -> HTML b a
+runHalogenHtml (HalogenHtml html) = lmap absurd $ html
 
+--------------------------------------------------------------------------------
+-- HalogenHtmlCtx
+--------------------------------------------------------------------------------
+
+newtype HalogenHtmlCtx ctx a = HalogenHtmlCtx (ctx -> HalogenHtml a)
+
+derive instance Functor (HalogenHtmlCtx ctx)
+
+instance Html (HalogenHtmlCtx ctx) where
+  elem elemName props children = HalogenHtmlCtx \ctx ->
+    V.elem elemName props (runHalogenHtmlCtx ctx <$> children)
+
+  elemKeyed elemName props children = HalogenHtmlCtx \ctx ->
+    V.elemKeyed elemName props ((\(key /\ html) -> key /\ runHalogenHtmlCtx ctx html) <$> children)
+
+  text str = HalogenHtmlCtx \_ -> V.text str
+
+instance Ctx (HalogenHtmlCtx ctx) ctx where
+  withCtx f = HalogenHtmlCtx \ctx -> runHalogenHtmlCtx ctx $ f ctx
+
+runHalogenHtmlCtx :: forall ctx a. ctx -> HalogenHtmlCtx ctx a -> HalogenHtml a
+runHalogenHtmlCtx ctx (HalogenHtmlCtx f) = f ctx

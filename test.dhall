@@ -7,6 +7,7 @@
   , "foreign"
   , "halogen"
   , "prelude"
+  , "safe-coerce"
   , "strings"
   , "tuples"
   , "unsafe-coerce"
