@@ -1,6 +1,6 @@
 # purescript-virtual-dom-halogen
 
-React Basic implementation of the general `Html` class from the
+Halogen implementation of the general `Html` class from the
 [virtual-dom](https://github.com/thought2/purescript-virtual-dom) package.
 You can write your web views in a framework agnostic way and this package can
 convert them to Halogen views.
