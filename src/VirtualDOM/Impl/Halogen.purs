@@ -23,7 +23,7 @@ newtype HalogenHTML ctx a = HalogenHTML (ctx -> HTML Void a)
 
 derive instance Functor (HalogenHTML ctx)
 
-instance Html HalogenHTML where
+instance Html (HalogenHTML ctx) ctx where
   elem (ElemName name) props children = HalogenHTML \ctx ->
     HH.element
       (HH.ElemName name)
@@ -37,8 +37,6 @@ instance Html HalogenHTML where
       ((\(Key key /\ html) -> key /\ runHalogenHTML ctx html) <$> children)
 
   text str = HalogenHTML \_ -> HH.text str
-
-  mapCtx f (HalogenHTML mkHtml) = HalogenHTML (f >>> mkHtml)
 
   withCtx f = HalogenHTML \ctx -> runHalogenHTML ctx $ f ctx
 
