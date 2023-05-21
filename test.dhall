@@ -14,6 +14,7 @@
   , "virtual-dom"
   , "web-events"
   , "web-html"
+  , "arrays"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

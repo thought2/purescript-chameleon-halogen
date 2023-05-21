@@ -1,6 +1,9 @@
 { name = "virtual-dom-halogen"
 , dependencies =
-  [ "bifunctors"
+  [ "aff"
+  , "arrays"
+  , "bifunctors"
+  , "effect"
   , "foreign"
   , "halogen"
   , "prelude"
@@ -10,6 +13,7 @@
   , "unsafe-coerce"
   , "virtual-dom"
   , "web-events"
+  , "web-html"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]
