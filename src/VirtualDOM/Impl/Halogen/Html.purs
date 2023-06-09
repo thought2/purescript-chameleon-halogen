@@ -49,7 +49,7 @@ instance Html HalogenHtml where
 
 mapProp :: forall r a. Prop a -> IProp r a
 mapProp prop = case prop of
-  Attr k v -> HH.attr (HH.AttrName k) v
+  Attr k v -> HH.prop (HH.PropName k) v
   Event n h -> IProp $ HH.handler (EventType $ Str.toLower n) (eventToForeign >>> h >>> map Action)
 
 eventToForeign :: DOM.Event -> Foreign
