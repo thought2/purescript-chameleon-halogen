@@ -19,7 +19,7 @@ import Halogen.HTML.Properties (IProp(..))
 import Halogen.Query.Input (Input(..))
 import Safe.Coerce (coerce)
 import Unsafe.Coerce (unsafeCoerce)
-import VirtualDOM (class Ctx, class Html, ElemName(..), Key(..), Prop(..))
+import VirtualDOM (class Ctx, class CtxHtml, class Html, ElemName(..), Key(..), Prop(..))
 import VirtualDOM as V
 import Web.Event.Event (EventType(..))
 import Web.Event.Internal.Types as DOM
@@ -77,6 +77,9 @@ instance Html (HalogenHtmlCtx ctx) where
 
 instance Ctx (HalogenHtmlCtx ctx) ctx where
   withCtx f = HalogenHtmlCtx \ctx -> runHalogenHtmlCtx ctx $ f ctx
+  setCtx ctx html = HalogenHtmlCtx \_ -> runHalogenHtmlCtx ctx html
+
+instance CtxHtml (HalogenHtmlCtx ctx) ctx
 
 runHalogenHtmlCtx :: forall ctx a. ctx -> HalogenHtmlCtx ctx a -> HalogenHtml a
 runHalogenHtmlCtx ctx (HalogenHtmlCtx f) = f ctx
