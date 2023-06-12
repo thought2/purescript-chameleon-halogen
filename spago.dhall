@@ -1,7 +1,6 @@
 { name = "virtual-dom-halogen"
 , dependencies =
   [ "aff"
-  , "arrays"
   , "bifunctors"
   , "effect"
   , "foreign"
