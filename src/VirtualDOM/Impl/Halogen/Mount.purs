@@ -3,7 +3,7 @@ module VirtualDOM.Impl.Halogen.Mount where
 import Prelude
 
 import Effect (Effect)
-import Effect.Aff (launchAff_)
+import Effect.Aff (Aff, launchAff_)
 import Halogen (liftEffect)
 import Halogen as H
 import Halogen as Halogen
@@ -25,8 +25,8 @@ type UI html msg sta =
 -- Halogen Component
 --------------------------------------------------------------------------------
 
-uiToHalogenComponent :: forall q i o m msg sta. UI HalogenHtml msg sta -> Halogen.Component q i o m
-uiToHalogenComponent ui =
+uiToHalogenComponent :: forall q i o msg sta. { onStateChange :: sta -> Effect Unit } -> UI HalogenHtml msg sta -> Halogen.Component q i o Aff
+uiToHalogenComponent { onStateChange } ui =
   H.mkComponent
     { initialState
     , render
@@ -38,16 +38,17 @@ uiToHalogenComponent ui =
   render state =
     runHalogenHtml $ ui.view state
 
-  handleAction msg = H.modify_ $ ui.update msg
+  handleAction msg = do
+    state <- H.modify $ ui.update msg
+    liftEffect $ onStateChange state
 
 --------------------------------------------------------------------------------
 -- Mounting
 --------------------------------------------------------------------------------
 
-uiMountAtId :: forall msg sta. String -> UI HalogenHtml msg sta -> Effect Unit
-uiMountAtId id ui = launchAff_ do
+uiMountAtId :: forall q o. String -> Halogen.Component q Unit o Aff -> Effect Unit
+uiMountAtId id comp = launchAff_ do
   rootElem <- liftEffect $ elemById id
-  let comp = uiToHalogenComponent ui
   _ <- HalogenVDOM.runUI comp unit rootElem
   pure unit
 
