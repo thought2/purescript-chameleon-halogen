@@ -4,6 +4,7 @@
   , "bifunctors"
   , "effect"
   , "foreign"
+  , "foreign-object"
   , "halogen"
   , "prelude"
   , "safe-coerce"
