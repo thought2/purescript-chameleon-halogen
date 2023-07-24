@@ -96,6 +96,8 @@ attribs = Object.fromFoldable $ map (\x -> x /\ unit)
   , "from"
   , "to"
   , "id"
+  , "maxlength"
+  , "minlength"
   , "markerStart"
   , "markerMid"
   , "markerEnd"
