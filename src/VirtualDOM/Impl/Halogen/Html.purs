@@ -5,7 +5,7 @@ module VirtualDOM.Impl.Halogen.Html
 
 import Prelude
 
-import Data.Bifunctor (lmap)
+import Data.Bifunctor (bimap, lmap)
 import Data.Maybe (Maybe(..))
 import Data.String as Str
 import Data.Tuple.Nested (type (/\), (/\))
@@ -46,8 +46,8 @@ instance MaybeMsg HalogenHtml where
       HVD.Elem ns name props xs -> HVD.Elem ns name (map convertProp props) (map go xs)
       HVD.Keyed ns name props xs -> HVD.Keyed ns name (map convertProp props) (map (map go) xs)
       HVD.Text str -> HVD.Text str
-      HVD.Widget _ -> HVD.Text ""
-      HVD.Grafted _ -> HVD.Text ""
+      HVD.Widget x -> absurd x
+      HVD.Grafted g -> HVD.Grafted $ bimap (map convertProp) identity g
 
     convertProp :: H.Prop (Input (Maybe msg)) -> H.Prop (Input msg)
     convertProp = case _ of
