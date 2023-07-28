@@ -8,7 +8,7 @@ in upstream
 
 with virtual-dom =
   { repo = "https://github.com/thought2/purescript-virtual-dom.git"
-  , version = "e38321e279becc875e2d7eec29fd85df6cc3c866"
+  , version = "c24b0a4986addfee1caf498b9268fc4bdb7232c7"
   , dependencies = [ "either", "foldable-traversable", "foreign", "maybe", "prelude", "strings", "these", "transformers", "tuples", "variant" ]
   }
 

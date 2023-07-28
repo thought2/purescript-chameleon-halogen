@@ -24,7 +24,7 @@ import Halogen.VDom.DOM.Prop as H
 import Halogen.VDom.DOM.Prop as HVDP
 import Safe.Coerce (coerce)
 import Unsafe.Coerce (unsafeCoerce)
-import VirtualDOM (class Html, class CensorMsg, ElemName(..), Key(..), Prop(..))
+import VirtualDOM (class Html, class MaybeMsg, ElemName(..), Key(..), Prop(..))
 import Web.Event.Event (EventType(..))
 import Web.Event.Event as Web
 import Web.Event.Internal.Types as DOM
@@ -37,29 +37,37 @@ newtype HalogenHtml a = HalogenHtml (HTML Void a)
 
 derive instance Functor HalogenHtml
 
-instance CensorMsg HalogenHtml where
-  censorMsg :: forall msg. (msg -> Maybe msg) -> HalogenHtml msg -> HalogenHtml msg
-  censorMsg f (HalogenHtml (HTML html)) = HalogenHtml (HTML $ go html)
+instance MaybeMsg HalogenHtml where
+  fromMaybeMsg :: forall msg. HalogenHtml (Maybe msg) -> HalogenHtml msg
+  fromMaybeMsg (HalogenHtml (HTML html)) = HalogenHtml (HTML $ go html)
     where
-    go :: VDom (Array (H.Prop (Input msg))) Void -> VDom (Array (H.Prop (Input msg))) Void
+    go :: VDom (Array (H.Prop (Input (Maybe msg)))) Void -> VDom (Array (H.Prop (Input msg))) Void
     go = case _ of
-      HVD.Elem ns name props xs -> HVD.Elem ns name (map convertProp props) xs
-      HVD.Keyed ns name props xs -> HVD.Keyed ns name (map convertProp props) xs
-      x -> x
+      HVD.Elem ns name props xs -> HVD.Elem ns name (map convertProp props) (map go xs)
+      HVD.Keyed ns name props xs -> HVD.Keyed ns name (map convertProp props) (map (map go) xs)
+      HVD.Text str -> HVD.Text str
+      HVD.Widget _ -> HVD.Text ""
+      HVD.Grafted _ -> HVD.Text ""
 
-    convertProp :: H.Prop (Input msg) -> H.Prop (Input msg)
+    convertProp :: H.Prop (Input (Maybe msg)) -> H.Prop (Input msg)
     convertProp = case _ of
       HVDP.Handler type_ cb ->
         let
           newCb :: Web.Event -> Maybe (Input msg)
           newCb ev = do
-            result :: Input msg <- cb ev
-            case result of
-              Action msg -> Action <$> f msg
-              x -> Just x
+            result :: Input (Maybe msg) <- cb ev
+            convertInput result
         in
           HVDP.Handler type_ newCb
-      x -> x
+      HVDP.Ref _ -> HVDP.Ref (const Nothing)
+      HVDP.Attribute x y z -> HVDP.Attribute x y z
+      HVDP.Property x y -> HVDP.Property x y
+
+    convertInput :: Input (Maybe msg) -> Maybe (Input msg)
+    convertInput = case _ of
+      Action Nothing -> Nothing
+      Action (Just msg) -> Just $ Action msg
+      RefUpdate x y -> Just $ RefUpdate x y
 
 instance Html HalogenHtml where
 
