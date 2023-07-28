@@ -6,6 +6,8 @@
   , "foreign"
   , "foreign-object"
   , "halogen"
+  , "halogen-vdom"
+  , "maybe"
   , "prelude"
   , "safe-coerce"
   , "strings"

@@ -6,21 +6,27 @@ module VirtualDOM.Impl.Halogen.Html
 import Prelude
 
 import Data.Bifunctor (lmap)
+import Data.Maybe (Maybe(..))
 import Data.String as Str
 import Data.Tuple.Nested (type (/\), (/\))
 import Foreign (Foreign)
 import Foreign.Object (Object)
 import Foreign.Object as Object
-import Halogen.HTML (HTML, Namespace(..))
+import Halogen.HTML (HTML(..), Namespace(..))
 import Halogen.HTML as HA
 import Halogen.HTML as HH
 import Halogen.HTML.Properties (IProp(..))
 import Halogen.HTML.Properties as HP
 import Halogen.Query.Input (Input(..))
+import Halogen.VDom (VDom)
+import Halogen.VDom as HVD
+import Halogen.VDom.DOM.Prop as H
+import Halogen.VDom.DOM.Prop as HVDP
 import Safe.Coerce (coerce)
 import Unsafe.Coerce (unsafeCoerce)
-import VirtualDOM (class Html, ElemName(..), Key(..), Prop(..))
+import VirtualDOM (class Html, class CensorMsg, ElemName(..), Key(..), Prop(..))
 import Web.Event.Event (EventType(..))
+import Web.Event.Event as Web
 import Web.Event.Internal.Types as DOM
 
 --------------------------------------------------------------------------------
@@ -30,6 +36,30 @@ import Web.Event.Internal.Types as DOM
 newtype HalogenHtml a = HalogenHtml (HTML Void a)
 
 derive instance Functor HalogenHtml
+
+instance CensorMsg HalogenHtml where
+  censorMsg :: forall msg. (msg -> Maybe msg) -> HalogenHtml msg -> HalogenHtml msg
+  censorMsg f (HalogenHtml (HTML html)) = HalogenHtml (HTML $ go html)
+    where
+    go :: VDom (Array (H.Prop (Input msg))) Void -> VDom (Array (H.Prop (Input msg))) Void
+    go = case _ of
+      HVD.Elem ns name props xs -> HVD.Elem ns name (map convertProp props) xs
+      HVD.Keyed ns name props xs -> HVD.Keyed ns name (map convertProp props) xs
+      x -> x
+
+    convertProp :: H.Prop (Input msg) -> H.Prop (Input msg)
+    convertProp = case _ of
+      HVDP.Handler type_ cb ->
+        let
+          newCb :: Web.Event -> Maybe (Input msg)
+          newCb ev = do
+            result :: Input msg <- cb ev
+            case result of
+              Action msg -> Action <$> f msg
+              x -> Just x
+        in
+          HVDP.Handler type_ newCb
+      x -> x
 
 instance Html HalogenHtml where
 

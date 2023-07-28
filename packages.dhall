@@ -1,22 +1,14 @@
+
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.15.8-20230430/packages.dhall
-        sha256:007f16aff737b37041e2f387f906ea711c85afc19b898e9f4986ec85cb96efc4
+  https://github.com/purescript/package-sets/releases/download/psc-0.15.8-20230517/packages.dhall
+    sha256:8b94a0cd7f86589a6bd06d48cb9a61d69b66a94b668657b2f10c8b14c16e028c
 
-in  upstream
+in upstream
 
-  with virtual-dom =
-      { dependencies =
-          [ "either"
-          , "foreign"
-          , "maybe"
-          , "prelude"
-          , "strings"
-          , "transformers"
-          , "tuples"
-          , "variant"
-          ]
-      , repo =
-          "https://github.com/thought2/purescript-virtual-dom.git"
-      , version =
-          "main"
-      }
+
+with virtual-dom =
+  { repo = "https://github.com/thought2/purescript-virtual-dom.git"
+  , version = "e38321e279becc875e2d7eec29fd85df6cc3c866"
+  , dependencies = [ "either", "foldable-traversable", "foreign", "maybe", "prelude", "strings", "these", "transformers", "tuples", "variant" ]
+  }
+
