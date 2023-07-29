@@ -24,7 +24,7 @@ import Halogen.VDom.DOM.Prop as H
 import Halogen.VDom.DOM.Prop as HVDP
 import Safe.Coerce (coerce)
 import Unsafe.Coerce (unsafeCoerce)
-import VirtualDOM (class Html, class MaybeMsg, ElemName(..), Key(..), Prop(..))
+import VirtualDOM (class Html, class MapMaybe, ElemName(..), Key(..), Prop(..))
 import Web.Event.Event (EventType(..))
 import Web.Event.Event as Web
 import Web.Event.Internal.Types as DOM
@@ -37,11 +37,11 @@ newtype HalogenHtml a = HalogenHtml (HTML Void a)
 
 derive instance Functor HalogenHtml
 
-instance MaybeMsg HalogenHtml where
-  fromMaybeMsg :: forall msg. HalogenHtml (Maybe msg) -> HalogenHtml msg
-  fromMaybeMsg (HalogenHtml (HTML html)) = HalogenHtml (HTML $ go html)
+instance MapMaybe HalogenHtml where
+  mapMaybe :: forall msg1 msg2. (msg1 -> Maybe msg2) -> HalogenHtml msg1 -> HalogenHtml msg2
+  mapMaybe f (HalogenHtml (HTML vdom)) = HalogenHtml (HTML $ go vdom)
     where
-    go :: VDom (Array (H.Prop (Input (Maybe msg)))) Void -> VDom (Array (H.Prop (Input msg))) Void
+    go :: VDom (Array (H.Prop (Input msg1))) Void -> VDom (Array (H.Prop (Input msg2))) Void
     go = case _ of
       HVD.Elem ns name props xs -> HVD.Elem ns name (map convertProp props) (map go xs)
       HVD.Keyed ns name props xs -> HVD.Keyed ns name (map convertProp props) (map (map go) xs)
@@ -49,13 +49,13 @@ instance MaybeMsg HalogenHtml where
       HVD.Widget x -> absurd x
       HVD.Grafted g -> HVD.Grafted $ bimap (map convertProp) identity g
 
-    convertProp :: H.Prop (Input (Maybe msg)) -> H.Prop (Input msg)
+    convertProp :: H.Prop (Input msg1) -> H.Prop (Input msg2)
     convertProp = case _ of
       HVDP.Handler type_ cb ->
         let
-          newCb :: Web.Event -> Maybe (Input msg)
+          newCb :: Web.Event -> Maybe (Input msg2)
           newCb ev = do
-            result :: Input (Maybe msg) <- cb ev
+            result :: Input msg1 <- cb ev
             convertInput result
         in
           HVDP.Handler type_ newCb
@@ -63,10 +63,9 @@ instance MaybeMsg HalogenHtml where
       HVDP.Attribute x y z -> HVDP.Attribute x y z
       HVDP.Property x y -> HVDP.Property x y
 
-    convertInput :: Input (Maybe msg) -> Maybe (Input msg)
+    convertInput :: Input msg1 -> Maybe (Input msg2)
     convertInput = case _ of
-      Action Nothing -> Nothing
-      Action (Just msg) -> Just $ Action msg
+      Action msg -> f msg <#> \msg' -> Action msg'
       RefUpdate x y -> Just $ RefUpdate x y
 
 instance Html HalogenHtml where
