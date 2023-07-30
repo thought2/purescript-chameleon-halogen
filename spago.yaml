@@ -1,21 +1,21 @@
 package:
   dependencies:
-    - aff
-    - bifunctors
-    - effect
-    - foreign
-    - foreign-object
-    - halogen
-    - halogen-vdom
-    - maybe
-    - prelude
-    - safe-coerce
-    - strings
-    - tuples
-    - unsafe-coerce
-    - chameleon
-    - web-events
-    - web-html
+    - aff: ">=7.1.0 <8.0.0"
+    - bifunctors: ">=6.0.0 <7.0.0"
+    - chameleon: "*"
+    - effect: ">=4.0.0 <5.0.0"
+    - foreign: ">=7.0.0 <8.0.0"
+    - foreign-object: ">=4.1.0 <5.0.0"
+    - halogen: ">=7.0.0 <8.0.0"
+    - halogen-vdom: ">=8.0.0 <9.0.0"
+    - maybe: ">=6.0.0 <7.0.0"
+    - prelude: ">=6.0.1 <7.0.0"
+    - safe-coerce: ">=2.0.0 <3.0.0"
+    - strings: ">=6.0.1 <7.0.0"
+    - tuples: ">=7.0.0 <8.0.0"
+    - unsafe-coerce: ">=6.0.0 <7.0.0"
+    - web-events: ">=4.0.0 <5.0.0"
+    - web-html: ">=4.1.0 <5.0.0"
   name: chameleon-halogen
   test:
     dependencies:
@@ -45,4 +45,3 @@ workspace:
         - variant
   package_set:
     registry: 31.0.0
-
