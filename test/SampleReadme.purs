@@ -17,11 +17,11 @@ import Halogen (liftEffect)
 import Halogen as H
 import Halogen as Halogen
 import Halogen.VDom.Driver as HalogenVDOM
-import VirtualDOM (class Html, text)
-import VirtualDOM.HTML.Attributes as VA
-import VirtualDOM.HTML.Elements as V
-import VirtualDOM.HTML.Events as VE
-import VirtualDOM.Impl.Halogen as VirtualDom.Halogen
+import Chameleon (class Html, text)
+import Chameleon.HTML.Attributes as VA
+import Chameleon.HTML.Elements as V
+import Chameleon.HTML.Events as VE
+import Chameleon.Impl.Halogen as Chameleon.Halogen
 import Web.HTML (HTMLElement)
 
 -- ### Framework agnostic view
@@ -63,7 +63,7 @@ app =
   initialState _ = 0
 
   render state =
-    VirtualDom.Halogen.runHalogenHtml $ counterView { count: state }
+    Chameleon.Halogen.runHalogenHtml $ counterView { count: state }
 
   handleAction msg = H.modify_ $ counterUpdate msg
 

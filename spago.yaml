@@ -1,0 +1,40 @@
+package:
+  dependencies:
+    - aff
+    - bifunctors
+    - effect
+    - foreign
+    - foreign-object
+    - halogen
+    - halogen-vdom
+    - maybe
+    - prelude
+    - safe-coerce
+    - strings
+    - tuples
+    - unsafe-coerce
+    - chameleon
+    - web-events
+    - web-html
+  name: chameleon-halogen
+  test:
+    dependencies:
+      - console
+    main: Test.Main
+workspace:
+  extra_packages:
+    chameleon:
+      git: https://github.com/thought2/purescript-chameleon.git
+      ref: v0.0.2
+      dependencies:
+        - either
+        - foreign
+        - maybe
+        - prelude
+        - strings
+        - transformers
+        - tuples
+        - variant
+  package_set:
+    registry: 31.0.0
+

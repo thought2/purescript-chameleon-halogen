@@ -1,4 +1,4 @@
-module VirtualDOM.Impl.Halogen.Mount where
+module Chameleon.Impl.Halogen.Mount where
 
 import Prelude
 
@@ -8,7 +8,7 @@ import Halogen (liftEffect)
 import Halogen as H
 import Halogen as Halogen
 import Halogen.VDom.Driver as HalogenVDOM
-import VirtualDOM.Impl.Halogen.Html (HalogenHtml, runHalogenHtml)
+import Chameleon.Impl.Halogen.Html (HalogenHtml, runHalogenHtml)
 import Web.HTML (HTMLElement)
 
 --------------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-module VirtualDOM.Impl.Halogen.Html
+module Chameleon.Impl.Halogen.Html
   ( HalogenHtml
   , runHalogenHtml
   ) where
@@ -24,7 +24,7 @@ import Halogen.VDom.DOM.Prop as H
 import Halogen.VDom.DOM.Prop as HVDP
 import Safe.Coerce (coerce)
 import Unsafe.Coerce (unsafeCoerce)
-import VirtualDOM (class Html, class MapMaybe, ElemName(..), Key(..), Prop(..))
+import Chameleon (class Html, class MapMaybe, ElemName(..), Key(..), Prop(..))
 import Web.Event.Event (EventType(..))
 import Web.Event.Event as Web
 import Web.Event.Internal.Types as DOM
