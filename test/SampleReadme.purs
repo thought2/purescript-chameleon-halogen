@@ -1,12 +1,3 @@
--- # purescript-chameleon-halogen
---
--- Halogen implementation of the general `Html` class from the
--- [chameleon](https://github.com/thought2/purescript-chameleon) package.
--- You can write your web views in a framework agnostic way and this package can
--- convert them to Halogen views.
---
--- ## Example
-
 module Test.SampleReadme where
 
 import Prelude
@@ -14,17 +5,14 @@ import Prelude
 import Effect (Effect)
 import Effect.Aff (launchAff_)
 import Halogen (liftEffect)
-import Halogen as H
 import Halogen as Halogen
 import Halogen.VDom.Driver as HalogenVDOM
-import Chameleon (class Html, text)
-import Chameleon.HTML.Attributes as VA
-import Chameleon.HTML.Elements as V
-import Chameleon.HTML.Events as VE
+import Chameleon (class Html)
+import Chameleon as C
 import Chameleon.Impl.Halogen as Chameleon.Halogen
 import Web.HTML (HTMLElement)
 
--- ### Framework agnostic view
+-- Framework agnostic part
 
 type State = Int
 
@@ -39,25 +27,25 @@ counterUpdate msg state = case msg of
 
 counterView :: forall html. Html html => { count :: Int } -> html Msg
 counterView props =
-  V.div
-    [ VA.style "border: 1px solid red"
+  C.div
+    [ C.style "border: 1px solid red"
     ]
-    [ text "Counter"
-    , V.div [] [ text $ show props.count ]
-    , V.button [ VE.onClick (Increment 1) ]
-        [ text "+" ]
-    , V.button [ VE.onClick (Decrement 1) ]
-        [ text "-" ]
+    [ C.text "Counter"
+    , C.div [] [ C.text $ show props.count ]
+    , C.button [ C.onClick (Increment 1) ]
+        [ C.text "+" ]
+    , C.button [ C.onClick (Decrement 1) ]
+        [ C.text "-" ]
     ]
 
--- ### Halogen component
+-- Halogen component
 
 app :: forall q i o m. Halogen.Component q i o m
 app =
-  H.mkComponent
+  Halogen.mkComponent
     { initialState
     , render
-    , eval: H.mkEval $ H.defaultEval { handleAction = handleAction }
+    , eval: Halogen.mkEval $ Halogen.defaultEval { handleAction = handleAction }
     }
   where
   initialState _ = 0
@@ -65,9 +53,9 @@ app =
   render state =
     Chameleon.Halogen.runHalogenHtml $ counterView { count: state }
 
-  handleAction msg = H.modify_ $ counterUpdate msg
+  handleAction msg = Halogen.modify_ $ counterUpdate msg
 
--- ### Mount Halogen component
+-- Mount Halogen component
 
 foreign import elemById :: String -> Effect HTMLElement
 
