@@ -101,7 +101,15 @@ mapProp prop = case prop of
   Event n h -> IProp $ HH.handler (EventType $ Str.toLower n) (eventToForeign >>> h >>> map Action)
 
 isHalogenAttr :: String -> Boolean
-isHalogenAttr str = Object.member str attribs
+isHalogenAttr str =
+  let
+    isDataAttrib :: Boolean
+    isDataAttrib = Str.stripPrefix (Str.Pattern "data-") str /= Nothing
+
+    isListed :: Boolean
+    isListed = Object.member str attribs
+  in
+    isListed || isDataAttrib
 
 eventToForeign :: DOM.Event -> Foreign
 eventToForeign = unsafeCoerce
