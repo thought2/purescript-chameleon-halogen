@@ -5,6 +5,11 @@ Halogen implementation of the general `Html` class from the
 You can write your web views in a framework agnostic way and this package can
 convert them to Halogen views.
 
+
+## Complete example
+
+The below code shows how to integrate a `chameleon` view into a regular halogen component.
+
 <!-- START example -->
 *Main.purs:*
 ```hs
