@@ -174,7 +174,7 @@ attribs = Object.fromFoldable $ map (\x -> x /\ unit)
   , "strokeLineJoin"
   , "strokeMiterLimit"
   , "strokeOpacity"
-  , "strokeWidth"
+  , "stroke-width"
   , "textAnchor"
   , "transform"
   , "viewBox"
