@@ -189,6 +189,7 @@ attribs = Object.fromFoldable $ map (\x -> x /\ unit)
   , "href"
   , "xmlns"
   , "values"
+  , "keyTimes"
   ]
 
 isSvgElem :: String -> Boolean
